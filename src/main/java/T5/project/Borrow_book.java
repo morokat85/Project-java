@@ -15,9 +15,9 @@ public class Borrow_book {
         setReturnDate(returnDate);
         setReturned(isReturned);
     }
-    public String getBookTitle() {
-        return bookTitle;
-    }
+   public String getBookTitle(){
+    return bookTitle;
+   }
     public String getBorrowerName() {
         return borrowerName;
     }
