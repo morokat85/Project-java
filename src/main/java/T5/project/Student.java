@@ -1,4 +1,4 @@
-package T5.project;
+package  T5.project;
 
 public class Student {
     private String fullName;
@@ -7,10 +7,10 @@ public class Student {
     private int age;
 
 
-    public student_info(String fullName, String studentID, string gender, int age){
+    public Student(String fullName, String studentID, String gender, int age){
          setFullName(fullName);
          setStudentID(studentID);
-         setGender(studentID);
+         setGender(gender);
          setAge(age);
     }
     
