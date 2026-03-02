@@ -2,8 +2,8 @@ package T5.project;
 
 public class Borrow_book {
 
-    private String bookTitle;
-    private String borrowerName;
+    private Book book;
+    private Student student;
     private String borrowDate;
     private String returnDate;
     private boolean isReturned;
@@ -27,8 +27,14 @@ public class Borrow_book {
     public String getReturnDate() {
         return returnDate;
     }
+
     public boolean isReturned() {
         return isReturned;
+    }
+
+    public void markReturn() {
+        this.isReturned() = true;
+        book.setIsAvailable(true);
     }
     public void setBookTitle(String bookTitle) {
         if (bookTitle == null || bookTitle.trim().isEmpty()) {

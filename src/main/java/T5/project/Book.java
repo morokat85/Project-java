@@ -1,14 +1,14 @@
 package T5.project;
 
-public class Book {
+public abstract class Book {
    private String bookTitle;
    private String bookId;
    private boolean isAvailable;
 
-   public Book(String bookTitle, String bookId, boolean isAvailable){
+   public Book(String bookTitle, String bookId ){
     setBookTitle(bookTitle);
     setBookId(bookId);
-    setIsAvailable(isAvailable);
+    this.isAvailable = isAvailable;
    }
 
    public void setBookTitle(String bookTitle){

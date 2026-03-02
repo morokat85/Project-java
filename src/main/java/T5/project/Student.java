@@ -31,25 +31,25 @@ public class Student {
         if(fullName.isBlank()){
             throw new IllegalAccessException("Name is empty, please enter name")
         }
-        return this.fullName;
+        this.fullName = fullName;
     }
     public void setStudentID(String studentID){
         if(studentID.isBlank()){
             throw new IllegalAccessException("ID is empty, please enter ID")
         }
-        return this.studentID;
+        this.studentID = studentID;
     }
     public void setGender(String gender){
         if (gender == null || !gender.equals("F") || !gender.equals("M")){
             throw new IllegalAccessException("only F for female and M for male");
         }
-        return this.gender;
+        this.gender = gender;
     }
     public void setAge(int age){
         if (age <= 0 || age >=100 ){
             throw new IllegalAccessException("age not negative");
         }
-        return this.age;
+        this.age = age;
     }
     
 }
