@@ -1,6 +1,6 @@
 package  T5.project;
 
-public class Student {
+public class Student extends LibraryUser{
     private String fullName;
     private String studentID;
     private String gender;
@@ -45,11 +45,17 @@ public class Student {
         }
         return this.gender;
     }
-    public void setAge(int age){
-        if (age <= 0 || age >=100 ){
+
+    public void setAge(int age) {
+        if (age <= 0 || age >= 100) {
             throw new IllegalAccessException("age not negative");
         }
         return this.age;
+    }
+    
+    @Override
+    public void borrowBook() {
+        System.out.println(name + " (Student) can borrow up to 3 books.");
     }
     
 }
