@@ -72,7 +72,7 @@ public class StaffDashboard extends JFrame {
 
         viewLoansBtn.addActionListener(e -> {
             displayArea.setText("");
-            @SuppressWarnings("unchecked")
+            
             List<Borrow_book> loans = (List<Borrow_book>) library.getLoans();
             for (Borrow_book l : loans) displayArea.append(l.toString()+"\n");
         });
