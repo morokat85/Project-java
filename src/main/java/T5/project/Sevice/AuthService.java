@@ -1,29 +1,97 @@
 package T5.project.Sevice;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AuthService {
-    private static Map<String, String> staffAccounts = new HashMap<>();
-    private static Map<Integer, String> borrowerAccounts = new HashMap<>();
+
+    private static List<LibrarianUser> librarians = new ArrayList<>();
+    private static List<BorrowerUser>  borrowers  = new ArrayList<>();
 
     static {
-        staffAccounts.put("admin", "1234");
-        staffAccounts.put("staff", "1234");
-
-        borrowerAccounts.put(101, "Alice");
-        borrowerAccounts.put(102, "Bob");
+        librarians.add(new LibrarianUser("L001", "Admin Librarian", "admin", "1234", "LIB001"));
+        borrowers.add(new BorrowerUser("B001", "Test Borrower", "borrower", "1234", 1001));
     }
 
-    public static boolean loginStaff(String username, String password) {
-        return staffAccounts.containsKey(username) && staffAccounts.get(username).equals(password);
+    // =========================
+    // LOGIN — accepts username OR staffId
+    // =========================
+    public static boolean loginStaff(String usernameOrId, String password) {
+        if (usernameOrId == null || password == null) return false;
+        String input = usernameOrId.trim();
+
+        for (LibrarianUser lib : librarians) {
+            boolean matchUsername = lib.getUsername().equalsIgnoreCase(input);
+            boolean matchId       = lib.getUserId().equalsIgnoreCase(input);
+
+            if ((matchUsername || matchId) && lib.checkPassword(password) && lib.isActive()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Returns the matching librarian (needed by StaffDashboard to pass into library.login)
+    public static LibrarianUser getLibrarianByUsernameOrId(String usernameOrId) {
+        if (usernameOrId == null) return null;
+        String input = usernameOrId.trim();
+        for (LibrarianUser lib : librarians) {
+            if (lib.getUsername().equalsIgnoreCase(input) || lib.getUserId().equalsIgnoreCase(input)) {
+                return lib;
+            }
+        }
+        return null;
     }
 
     public static boolean loginBorrower(int borrowerId) {
-        return borrowerAccounts.containsKey(borrowerId);
+        for (BorrowerUser b : borrowers) {
+            if (b.getBorrowerId() == borrowerId && b.isActive()) return true;
+        }
+        return false;
+    }
+
+    // =========================
+    // REGISTER
+    // =========================
+    public static void registerLibrarian(String userId, String fullName,
+                                          String username, String password,
+                                          String staffCode) {
+        for (LibrarianUser lib : librarians) {
+            if (lib.getUsername().equalsIgnoreCase(username)) {
+                throw new IllegalArgumentException("Username already exists: " + username);
+            }
+        }
+        librarians.add(new LibrarianUser(userId, fullName, username, password, staffCode));
+    }
+
+    public static void registerBorrower(String userId, String fullName,
+                                         String username, String password,
+                                         int borrowerId) {
+        for (BorrowerUser bor : borrowers) {
+            if (bor.getUsername().equalsIgnoreCase(username)) {
+                throw new IllegalArgumentException("Username already exists: " + username);
+            }
+        }
+        borrowers.add(new BorrowerUser(userId, fullName, username, password, borrowerId));
+    }
+
+    // =========================
+    // GETTERS
+    // =========================
+    public static List<LibrarianUser> getLibrarians() { return librarians; }
+    public static List<BorrowerUser>  getBorrowers()  { return borrowers; }
+
+    public static List<IUser> getAllUsers() {
+        List<IUser> all = new ArrayList<>();
+        all.addAll(librarians);
+        all.addAll(borrowers);
+        return all;
     }
 
     public static String getBorrowerName(int borrowerId) {
-        return borrowerAccounts.get(borrowerId);
+        for (BorrowerUser b : borrowers) {
+            if (b.getBorrowerId() == borrowerId) return b.getFullName();
+        }
+        return null;
     }
 }

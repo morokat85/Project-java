@@ -6,13 +6,13 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import T5.project.App;
 import T5.project.Library.Library;
 import T5.project.Sevice.AuthService;
 import T5.project.Sevice.LoginForm;
-
 
 public class BorrowerDashboard extends JFrame {
 
@@ -23,25 +23,20 @@ public class BorrowerDashboard extends JFrame {
 
     public BorrowerDashboard(int borrowerId) {
         this.borrowerId = borrowerId;
-
-        //  Initialize library safely
         this.library = App.library;
+
         if (library == null) {
             JOptionPane.showMessageDialog(this, "Library system not initialized!");
             return;
         }
 
-        //  Get borrower name safely
         this.borrowerName = AuthService.getBorrowerName(borrowerId);
-        if (borrowerName == null) {
-            borrowerName = "Unknown";
-        }
+        if (borrowerName == null) borrowerName = "Unknown";
 
-        setTitle("Borrower Dashboard");
-        setSize(600, 400);
+        setTitle("Borrower Dashboard - " + borrowerName);
+        setSize(600, 450);
         setLayout(null);
 
-        // Buttons
         JButton borrowBtn = new JButton("Borrow Book");
         borrowBtn.setBounds(20, 20, 140, 30);
         add(borrowBtn);
@@ -51,43 +46,39 @@ public class BorrowerDashboard extends JFrame {
         add(viewLoansBtn);
 
         JButton logoutBtn = new JButton("Logout");
-        logoutBtn.setBounds(450, 320, 100, 30);
+        logoutBtn.setBounds(460, 380, 100, 30);
         add(logoutBtn);
 
-        // Text Area
+        // Use JScrollPane so content scrolls if there are many loans
         displayArea = new JTextArea();
-        displayArea.setBounds(20, 70, 540, 230);
-        add(displayArea);
+        displayArea.setEditable(false);
+        displayArea.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
+        JScrollPane scroll = new JScrollPane(displayArea);
+        scroll.setBounds(20, 70, 540, 290);
+        add(scroll);
 
-        // Actions
         borrowBtn.addActionListener(e -> borrowBook());
         viewLoansBtn.addActionListener(e -> viewMyLoans());
-
         logoutBtn.addActionListener(e -> {
             new LoginForm();
             dispose();
         });
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // center screen
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    //  FIXED borrowBook with safe input handling
     private void borrowBook() {
         try {
             String input = JOptionPane.showInputDialog(this, "Enter Book ID to borrow:");
+            if (input == null || input.trim().isEmpty()) return;
 
-            // Handle cancel
-            if (input == null || input.trim().isEmpty()) {
-                return;
-            }
+            int bookId = Integer.parseInt(input.trim());
 
-            int bookId = Integer.parseInt(input);
-            LocalDate borrowDate = LocalDate.now();
-
-            String message = library.borrowBook(bookId, borrowerId, borrowerName, borrowDate);
-            JOptionPane.showMessageDialog(this, message);
+            library.login(AuthService.getBorrowers(), "borrower", "1234");
+            library.borrowBook(bookId, borrowerId, borrowerName, LocalDate.now());
+            JOptionPane.showMessageDialog(this, library.getLastMessage());
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Please enter a valid number!");
@@ -96,19 +87,29 @@ public class BorrowerDashboard extends JFrame {
         }
     }
 
-    //  FIXED: removed wrong casting
     private void viewMyLoans() {
         displayArea.setText("");
-
-        List<Borrow_book> loans = library.getLoansByBorrower(borrowerId);
+        List<BorrowBook> loans = library.getLoansByBorrower(borrowerId);
 
         if (loans == null || loans.isEmpty()) {
-            displayArea.setText("No loans found.");
+            displayArea.setText("  No loans found.");
             return;
         }
 
-        for (Borrow_book loan : loans) {
-            displayArea.append(loan.toString() + "\n");
+        // Clean formatted display for each loan
+        for (int i = 0; i < loans.size(); i++) {
+            BorrowBook loan = loans.get(i);
+            String status = loan.isReturned() ? "Returned" : "Not Returned";
+
+            displayArea.append("------------------------------------------\n");
+            displayArea.append("  Loan #" + (i + 1) + "\n");
+            displayArea.append("  Book ID   : " + loan.getBookId() + "\n");
+            displayArea.append("  Title     : " + loan.getBookTitle() + "\n");
+            displayArea.append("  Borrower  : " + loan.getBorrowerName() + "\n");
+            displayArea.append("  Borrow    : " + loan.getBorrowDate() + "\n");
+            displayArea.append("  Return by : " + loan.getReturnDate() + "\n");
+            displayArea.append("  Status    : " + status + "\n");
         }
+        displayArea.append("------------------------------------------\n");
     }
 }
